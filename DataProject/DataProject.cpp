@@ -21,7 +21,8 @@ class Node
 {
 public:
     string tagName;
-    string tagValue;
+    vector<string> tagValue;
+    vector<int> tagValuePosition;
     string attribute;
     vector<Node*> children;
     vector<pair<string,int>> comments;
@@ -31,6 +32,7 @@ class Tree
 {
     Node* root;
     vector<string> preOrder;
+    vector<string> postOrder;
     queue<string>* q;
     fstream* createdFile;
 public:
@@ -40,6 +42,7 @@ public:
         q = p;
         initilization();
         convert(root);
+        postOrderFormat();
     }
     void initilization()
     {
@@ -68,17 +71,25 @@ public:
         p->tagName = q->front().substr(1, found - 1);
         q->pop();
     }
+    void postOrderFormat()
+    {
+        if (!q->empty())
+        {
+            postOrder.push_back(q->front());
+            q->pop();
+        }
+    }
     void convert(Node* p)
     {
         Node* temp;
         string name = p->tagName;
-        p->tagValue = "";
         int commentPosition = 0;
         while (q->front() != ("</" + name + ">"))
         {
             if (q->front()[0] != '<')
             {
-                p->tagValue = q->front();
+                p->tagValue.push_back(q->front());
+                p->tagValuePosition.push_back(commentPosition);
                 q->pop();
             }
             else
@@ -108,12 +119,21 @@ public:
         createdFile = file;
         printPreOrder();
         inFormat(root, 0);
+        printPostOrder();
+
     }
     void printPreOrder()
     {
         for (int i = 0; i < preOrder.size(); i++)
         {
             *createdFile << preOrder[i] << endl;
+        }
+    }
+    void printPostOrder()
+    {
+        for (int i = 0; i < postOrder.size(); i++)
+        {
+            *createdFile << postOrder[i] << endl;
         }
     }
     void inFormat(Node* p,int level)
@@ -124,8 +144,9 @@ public:
         string tempAttribute = (p->attribute == "") ? "" : " " + p->attribute;
         *createdFile << input << "<" + p->tagName + tempAttribute + ">" << endl;
         int len = p->children.size() + p->comments.size();
-        len = (p->tagValue == "") ? len : len + 1;
+        len = (p->tagValue.empty()) ? len : len + p->tagValue.size();
         int commentCount=0;
+        int tagValueCount = 0;
         int childCount = 0;
         level++;
         string tempInput= repeat("\t", level);
@@ -140,11 +161,16 @@ public:
                     continue;
                 }
             }
-            if (p->tagValue != "")
+            if (p->tagValuePosition.size() > tagValueCount)
             {
-                *createdFile << tempInput << p->tagValue << endl;
-                continue;
+                if (p->tagValuePosition[tagValueCount] == i)
+                {
+                    *createdFile << tempInput << p->tagValue[tagValueCount] << endl;
+                    tagValueCount++;
+                    continue;
+                }
             }
+            
             inFormat(p->children[childCount], level);
             childCount++;
         }
@@ -275,7 +301,7 @@ void Minifying(fstream* readingFile, fstream* createdFile)
 int main()
 {
 
-    fstream readingFile("E:/Electrical Engineer/3rd CSE/Second Term/Data Structures/data/test2.xml", ios::in);
+    fstream readingFile("E:/Electrical Engineer/3rd CSE/Second Term/Data Structures/data/test3.xml", ios::in);
     fstream createdFile("E:/Electrical Engineer/3rd CSE/Second Term/Data Structures/data/new.xml", ios::out);
     queue<string> q;
     string tp;
@@ -284,6 +310,7 @@ int main()
         tp = trim(tp);
         q.push(tp);
     }
+
     Tree tr = Tree(&q);
     tr.formatingFile(&createdFile);
     readingFile.close();

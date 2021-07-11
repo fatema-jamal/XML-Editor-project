@@ -1,4 +1,6 @@
 ﻿  DataProject.cpp
-C:\Users\Karim Alaa\source\repos\DataProject\DataProject.cpp(114,27): warning C4018: '<': signed/unsigned mismatch
-C:\Users\Karim Alaa\source\repos\DataProject\DataProject.cpp(134,35): warning C4018: '>': signed/unsigned mismatch
+C:\Users\Karim Alaa\source\repos\DataProject\DataProject.cpp(127,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Karim Alaa\source\repos\DataProject\DataProject.cpp(134,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Karim Alaa\source\repos\DataProject\DataProject.cpp(155,35): warning C4018: '>': signed/unsigned mismatch
+C:\Users\Karim Alaa\source\repos\DataProject\DataProject.cpp(164,44): warning C4018: '>': signed/unsigned mismatch
   DataProject.vcxproj -> C:\Users\Karim Alaa\source\repos\DataProject\Debug\DataProject.exe
