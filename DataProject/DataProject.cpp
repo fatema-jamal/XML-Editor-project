@@ -341,7 +341,19 @@ void Reformat(fstream* readingFile, queue<string>* q)
         }
     }
 }
+void sss(Node* p)
+{
+    //[li,o,s,li,s,p,o]
+    //[li,li,o,o,p,s,s]
+    for (int i = 0; i < p->tagValue.size();i++)
+    {
+        cout << p->tagValue[i] << endl;
+    }
+    for (int i = 0 ; i < p->children.size(); i++)
+    {
 
+    }
+}
 int main()
 {
     fstream readingFile("E:/Electrical Engineer/3rd CSE/Second Term/Data Structures/data/data-sample.xml", ios::in);
