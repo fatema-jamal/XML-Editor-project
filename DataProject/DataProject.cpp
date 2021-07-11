@@ -351,7 +351,13 @@ void sss(Node* p)
     }
     for (int i = 0 ; i < p->children.size(); i++)
     {
-
+        if (p->children[i]->tagName == p->children[i + 1]->tagName)
+        {
+            cout << p->children[i]->tagName;
+            sss(p->children[i]);
+            cout << ',';
+        }
+            
     }
 }
 int main()
