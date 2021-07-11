@@ -26,6 +26,7 @@ public:
     string attribute;
     vector<Node*> children;
     vector<pair<string,int>> comments;
+    bool emptyTag;
     
 };
 class Tree
@@ -68,6 +69,11 @@ public:
         {
            p->attribute = "";
         }
+        int size = q->front().length();
+        if (q->front()[size - 2] == '/')
+            p->emptyTag = true;
+        else
+            p->emptyTag = false;
         p->tagName = q->front().substr(1, found - 1);
         q->pop();
     }
@@ -104,6 +110,8 @@ public:
                     temp = new Node();
                     initTagName(temp);
                     p->children.push_back(temp);
+                    if (temp->emptyTag)
+                        continue;
                     convert(temp);
                     
                 }
@@ -174,7 +182,8 @@ public:
             inFormat(p->children[childCount], level);
             childCount++;
         }
-        *createdFile << input << "</" + p->tagName + ">" << endl;
+        if(!p->emptyTag)
+            *createdFile << input << "</" + p->tagName + ">" << endl;
     }
 
 };
@@ -289,6 +298,7 @@ void Minifying(fstream* readingFile, fstream* createdFile)
 {
     if (readingFile->is_open())
     {
+        
         string tp;
         while (getline(*readingFile, tp))
         {
@@ -296,23 +306,61 @@ void Minifying(fstream* readingFile, fstream* createdFile)
             *createdFile << tp;
         }
     }
+
+}
+void Reformat(fstream* readingFile, queue<string>* q)
+{
+    if (readingFile->is_open())
+    {
+        string newFormat = "";
+        string tp;
+        while (getline(*readingFile, tp))
+        {
+            tp = trim(tp);
+            newFormat.append(tp);
+        }
+        int n = newFormat.length();
+        size_t found;
+        string temp;
+        for (int i = 0; i < n; i++)
+        {
+            if (newFormat[i] == '<')
+            {
+                found = newFormat.find('>', i);
+                temp = newFormat.substr(i, found - i+1);
+                q->push(temp);
+                i = found;
+            }
+            else
+            {
+                found = newFormat.find('<', i);
+                temp = newFormat.substr(i, found - i);
+                q->push(trim(temp));
+                i = found-1;
+            }
+        }
+    }
 }
 
 int main()
 {
-
-    fstream readingFile("E:/Electrical Engineer/3rd CSE/Second Term/Data Structures/data/test3.xml", ios::in);
+    fstream readingFile("E:/Electrical Engineer/3rd CSE/Second Term/Data Structures/data/data-sample.xml", ios::in);
     fstream createdFile("E:/Electrical Engineer/3rd CSE/Second Term/Data Structures/data/new.xml", ios::out);
     queue<string> q;
-    string tp;
-    while (getline(readingFile, tp))
-    {
-        tp = trim(tp);
-        q.push(tp);
-    }
+    Reformat(&readingFile, &q);
+    //string tp;
+    //while (getline(readingFile, tp))
+    //{
+    //    tp = trim(tp);
+    //    q.push(tp);
+    //}
 
     Tree tr = Tree(&q);
     tr.formatingFile(&createdFile);
+
+
+   // Minifying(&readingFile, &createdFile);
+
     readingFile.close();
     createdFile.close();
 }
