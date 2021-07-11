@@ -1,0 +1,2 @@
+C:\Users\Karim Alaa\source\repos\DataProject\Debug\DataProject.exe
+C:\Users\Karim Alaa\source\repos\DataProject\Debug\DataProject.pdb
