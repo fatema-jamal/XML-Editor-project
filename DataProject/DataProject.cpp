@@ -4,8 +4,23 @@
 #include <stack>
 #include <vector>
 #include <queue>
+#include <algorithm>
 using namespace std;
 const string WHITESPACE = " \n\r\t\f\v";
+string ltrim(string* s)
+{
+    size_t start = s->find_first_not_of(WHITESPACE);
+    return (start == string::npos) ? "" : s->substr(start);
+}
+string rtrim(string* s)
+{
+    size_t end = s->find_last_not_of(WHITESPACE);
+    return (end == string::npos) ? "" : s->substr(0, end + 1);
+}
+string trim(string& s)
+{
+    return rtrim(&(ltrim(&s)));
+}
 string repeat(string str, int n)
 {
     if (n == 0)
@@ -23,7 +38,7 @@ public:
     string tagName;
     vector<string> tagValue;
     vector<int> tagValuePosition;
-    string attribute;
+    vector<pair <string,string>> attribute;
     vector<Node*> children;
     vector<pair<string,int>> comments;
     bool emptyTag;
@@ -58,22 +73,37 @@ public:
     {
         size_t found;
         size_t tempFound;
-        tempFound = q->front().find(" ", 1);
-        found = q->front().find(">", 1);
-        if (found > tempFound)
-        {
-            p->attribute = q->front().substr(tempFound + 1, found - tempFound - 1);
-            found = tempFound;
-        }
-        else
-        {
-           p->attribute = "";
-        }
         int size = q->front().length();
         if (q->front()[size - 2] == '/')
             p->emptyTag = true;
         else
             p->emptyTag = false;
+
+        if(p->emptyTag)
+            found = q->front().find("/", 1);
+        else
+            found = q->front().find(">", 1);
+        tempFound = q->front().find(" ", 1);
+        if (found > tempFound)
+        {
+
+            string t = q->front().substr(tempFound + 1, found - tempFound - 1);
+            found = tempFound;
+            t = trim(t);
+            int sizeTemp = t.length();
+            size_t x,y;
+            string tempName, tempValue;
+            for (int i = 0; i < sizeTemp; i++)
+            {
+                x = t.find('=', i);
+                tempName = t.substr(i, x - i);
+                y = t.find('"', x + 2);
+                tempValue = t.substr(x + 1, y - x);
+                p->attribute.push_back(make_pair(tempName, tempValue));
+                i = y + 1;
+            }
+        }
+        
         p->tagName = q->front().substr(1, found - 1);
         q->pop();
     }
@@ -149,7 +179,18 @@ public:
         if (p == nullptr)
             return;
         string input = repeat("\t", level);
-        string tempAttribute = (p->attribute == "") ? "" : " " + p->attribute;
+        int attSize = p->attribute.size();
+        string tempAttribute = (p->attribute.empty()) ? "" : " ";
+        for (int i = 0; i < attSize; i++)
+        {
+            tempAttribute.append(p->attribute[i].first +"="+ p->attribute[i].second);
+            if (i != attSize - 1)
+            {
+                tempAttribute.append(" ");
+            }
+        }
+        if (p->emptyTag)
+            tempAttribute.append(" /");
         *createdFile << input << "<" + p->tagName + tempAttribute + ">" << endl;
         int len = p->children.size() + p->comments.size();
         len = (p->tagValue.empty()) ? len : len + p->tagValue.size();
@@ -185,25 +226,24 @@ public:
         if(!p->emptyTag)
             *createdFile << input << "</" + p->tagName + ">" << endl;
     }
-
+    void sortChildren()
+    {
+        recursiveSort(root);
+    }
+    void recursiveSort(Node* p)
+    {
+        int n = p->children.size();
+        sort(p->children.begin(), p->children.end(), [](Node* a, Node* b) { return a->tagName < b->tagName; });
+        for (int i = 0; i < n; i++)
+        {
+            recursiveSort(p->children[i]);
+        }
+    }
 };
 
 
 
-string ltrim(string* s)
-{
-    size_t start = s->find_first_not_of(WHITESPACE);
-    return (start == string::npos) ? "" : s->substr(start);
-}
-string rtrim(string* s)
-{
-    size_t end = s->find_last_not_of(WHITESPACE);
-    return (end == string::npos) ? "" : s->substr(0, end + 1);
-}
-string trim(string& s) 
-{
-    return rtrim(&(ltrim(&s)));
-}
+
 void formatting(fstream* readingFile, fstream* createdFile)
 {
     stack<string> st;
@@ -374,8 +414,8 @@ int main()
     //}
 
     Tree tr = Tree(&q);
+    //tr.sortChildren();
     tr.formatingFile(&createdFile);
-
 
    // Minifying(&readingFile, &createdFile);
 
