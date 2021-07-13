@@ -383,11 +383,11 @@ void sss(Node* p, int g)
             g--;
             int y = tab.top();
             tab.pop(); 
-            for (int h = y; h <= 0; h--) {
-              cout << "\t";
-
-            }
-            cout  << "}" << endl;
+           for (int h =g+1; h > 0; h--) {
+            cout << "\t";
+            
+        }
+        cout << "}" << endl;
            // sss(p->children[i]);
             
           //  sss(p->children[i]);
