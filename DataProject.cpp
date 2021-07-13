@@ -362,7 +362,7 @@ void sss(Node* p, int g)
         }
         
     }
-    int g = 0;
+   // int g = 0;
     for (int i = 0 ; i < p->children.size(); i++)
     {
         /*if (p->children[i]->tagName == p->children[i + 1]->tagName)
@@ -375,7 +375,7 @@ void sss(Node* p, int g)
             cout << "\t";
         }
 
-            cout  << "\"" << p->children[i]->tagName << "\":{" << endl<<"\t";
+            cout  << "\"" << p->children[i]->tagName << "\":{" << endl;
            
             //first = 0;
             g++;
