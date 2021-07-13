@@ -4,8 +4,23 @@
 #include <stack>
 #include <vector>
 #include <queue>
+#include <algorithm>
 using namespace std;
 const string WHITESPACE = " \n\r\t\f\v";
+string ltrim(string* s)
+{
+    size_t start = s->find_first_not_of(WHITESPACE);
+    return (start == string::npos) ? "" : s->substr(start);
+}
+string rtrim(string* s)
+{
+    size_t end = s->find_last_not_of(WHITESPACE);
+    return (end == string::npos) ? "" : s->substr(0, end + 1);
+}
+string trim(string& s)
+{
+    return rtrim(&(ltrim(&s)));
+}
 string repeat(string str, int n)
 {
     if (n == 0)
@@ -23,22 +38,20 @@ public:
     string tagName;
     vector<string> tagValue;
     vector<int> tagValuePosition;
-    string attribute;
+    vector<pair <string, string>> attribute;
     vector<Node*> children;
-    vector<pair<string,int>> comments;
+    vector<pair<string, int>> comments;
     bool emptyTag;
-    
+
 };
 class Tree
-{
-public : 
-    Node * root;
+{public:
+    Node* root;
     vector<string> preOrder;
     vector<string> postOrder;
     queue<string>* q;
     fstream* createdFile;
 public:
-   
     Tree(queue<string>* p)
     {
         root = new Node();
@@ -60,22 +73,37 @@ public:
     {
         size_t found;
         size_t tempFound;
-        tempFound = q->front().find(" ", 1);
-        found = q->front().find(">", 1);
-        if (found > tempFound)
-        {
-            p->attribute = q->front().substr(tempFound + 1, found - tempFound - 1);
-            found = tempFound;
-        }
-        else
-        {
-           p->attribute = "";
-        }
         int size = q->front().length();
         if (q->front()[size - 2] == '/')
             p->emptyTag = true;
         else
             p->emptyTag = false;
+
+        if (p->emptyTag)
+            found = q->front().find("/", 1);
+        else
+            found = q->front().find(">", 1);
+        tempFound = q->front().find(" ", 1);
+        if (found > tempFound)
+        {
+
+            string t = q->front().substr(tempFound + 1, found - tempFound - 1);
+            found = tempFound;
+            t = trim(t);
+            int sizeTemp = t.length();
+            size_t x, y;
+            string tempName, tempValue;
+            for (int i = 0; i < sizeTemp; i++)
+            {
+                x = t.find('=', i);
+                tempName = t.substr(i, x - i);
+                y = t.find('"', x + 2);
+                tempValue = t.substr(x + 1, y - x);
+                p->attribute.push_back(make_pair(tempName, tempValue));
+                i = y + 1;
+            }
+        }
+
         p->tagName = q->front().substr(1, found - 1);
         q->pop();
     }
@@ -115,7 +143,7 @@ public:
                     if (temp->emptyTag)
                         continue;
                     convert(temp);
-                    
+
                 }
 
             }
@@ -146,23 +174,34 @@ public:
             *createdFile << postOrder[i] << endl;
         }
     }
-    void inFormat(Node* p,int level)
+    void inFormat(Node* p, int level)
     {
         if (p == nullptr)
             return;
         string input = repeat("\t", level);
-        string tempAttribute = (p->attribute == "") ? "" : " " + p->attribute;
+        int attSize = p->attribute.size();
+        string tempAttribute = (p->attribute.empty()) ? "" : " ";
+        for (int i = 0; i < attSize; i++)
+        {
+            tempAttribute.append(p->attribute[i].first + "=" + p->attribute[i].second);
+            if (i != attSize - 1)
+            {
+                tempAttribute.append(" ");
+            }
+        }
+        if (p->emptyTag)
+            tempAttribute.append(" /");
         *createdFile << input << "<" + p->tagName + tempAttribute + ">" << endl;
         int len = p->children.size() + p->comments.size();
         len = (p->tagValue.empty()) ? len : len + p->tagValue.size();
-        int commentCount=0;
+        int commentCount = 0;
         int tagValueCount = 0;
         int childCount = 0;
         level++;
-        string tempInput= repeat("\t", level);
+        string tempInput = repeat("\t", level);
         for (int i = 0; i < len; i++)
         {
-            if (p->comments.size()> commentCount)
+            if (p->comments.size() > commentCount)
             {
                 if (i == p->comments[commentCount].second)
                 {
@@ -180,32 +219,31 @@ public:
                     continue;
                 }
             }
-            
+
             inFormat(p->children[childCount], level);
             childCount++;
         }
-        if(!p->emptyTag)
+        if (!p->emptyTag)
             *createdFile << input << "</" + p->tagName + ">" << endl;
     }
-
+    void sortChildren()
+    {
+        recursiveSort(root);
+    }
+    void recursiveSort(Node* p)
+    {
+        int n = p->children.size();
+        sort(p->children.begin(), p->children.end(), [](Node* a, Node* b) { return a->tagName < b->tagName; });
+        for (int i = 0; i < n; i++)
+        {
+            recursiveSort(p->children[i]);
+        }
+    }
 };
 
 
 
-string ltrim(string* s)
-{
-    size_t start = s->find_first_not_of(WHITESPACE);
-    return (start == string::npos) ? "" : s->substr(start);
-}
-string rtrim(string* s)
-{
-    size_t end = s->find_last_not_of(WHITESPACE);
-    return (end == string::npos) ? "" : s->substr(0, end + 1);
-}
-string trim(string& s) 
-{
-    return rtrim(&(ltrim(&s)));
-}
+
 void formatting(fstream* readingFile, fstream* createdFile)
 {
     stack<string> st;
@@ -300,7 +338,7 @@ void Minifying(fstream* readingFile, fstream* createdFile)
 {
     if (readingFile->is_open())
     {
-        
+
         string tp;
         while (getline(*readingFile, tp))
         {
@@ -329,7 +367,7 @@ void Reformat(fstream* readingFile, queue<string>* q)
             if (newFormat[i] == '<')
             {
                 found = newFormat.find('>', i);
-                temp = newFormat.substr(i, found - i+1);
+                temp = newFormat.substr(i, found - i + 1);
                 q->push(temp);
                 i = found;
             }
@@ -338,71 +376,181 @@ void Reformat(fstream* readingFile, queue<string>* q)
                 found = newFormat.find('<', i);
                 temp = newFormat.substr(i, found - i);
                 q->push(trim(temp));
-                i = found-1;
+                i = found - 1;
             }
         }
     }
 }
-int first = 0; 
+int first = 0;
 void sss(Node* p, int g)
 {
     //[li,o,s,li,s,p,o]
     //[li,li,o,o,p,s,s]
     stack <int>tab;
     stack <string>pra;
-    stack <int >tab_name; 
-    for (int i = 0; i < p->tagValue.size();i++)
+    stack <int >tab_name;
+    for (int i = 0; i < p->tagValue.size(); i++)
     {
         if (first == 0) {
             first = 1;
             pra.push("}");
-            cout << "{"<<endl;
-            cout <<"\"" << p->tagName << "\":{" << endl;
-        pra.push("}");
+            cout << "{" << endl;
+            cout << "\"" << p->tagName << "\":{" << endl;
+
+            for (int h = 0; h < p->tagValue.size(); h++)
+            {
+                //cout << h;
+                if (h == 0) {
+                    cout << "\t"<< "\"#text\":";
+                }
+                if (p->tagValue.size() > 1 && h == 0) {
+                    cout << "[";
+                }
+                if (p->tagValue.size() == 1) {
+                    cout << p->tagValue[h] << endl;
+                }
+                if (p->tagValue.size() > 1&& h==0) {
+                    cout << p->tagValue[h] ;
+                }
+                    if (p->tagValue.size() > 1 && h != 0) {
+                        cout << ","<< p->tagValue[h];;
+                    }
+                    if (p->tagValue.size() > 1 && h == p->tagValue.size() - 1) {
+                        cout << "]"<<endl;
+            }
+            }
+            pra.push("}");
         }
-        
+
     }
-   // int g = 0;
-    for (int i = 0 ; i < p->children.size(); i++)
+    int f = 0; 
+    //int g = 0;
+    for (int i = 0; i < p->children.size(); i++)
     {
         /*if (p->children[i]->tagName == p->children[i + 1]->tagName)
         {*/
-        tab.push(i+1);
-        for (int h = 1; h <= i+1; h++) {
-            //cout << "\t";
-        }
+        tab.push(i + 1);
+       
         for (int u = 0; u <= g; u++) {
             cout << "\t";
         }
+        int t = p->children.size();
+       // if (i!=0)
+        int repeat = 0;
+        //cout << p->children[i]->tagName << p->children[i-1]->tagName;
+        if ( !p->children[i]->children.size()   ) {
+          //  cout << p->children[i]->children.size() << i;
+            if (i != p->children.size()-1 && p->children[i]->tagName == p->children[i + 1]->tagName) {
+                
+               // if (p->children[i]->tagName == p->children[i+1]->tagName) {
+                cout << "\"" << p->children[i]->tagName << "\":" << endl;
+                cout <<"["<<
+                //}
+                i++;
+            }
+            else {
 
-            cout  << "\"" << p->children[i]->tagName << "\":{" << endl;
-           
-            //first = 0;
-            g++;
-            sss(p->children[i],g);
-            g--;
-            int y = tab.top();
-            tab.pop(); 
-           for (int h =g+1; h > 0; h--) {
-            cout << "\t";
-            
+                cout << "\"" << p->children[i]->tagName << "\":" << endl;
+                for (int h = 0; h < p->children[i]->tagValue.size(); h++)
+                {
+                    for (int u = 0; u <= g; u++) {
+                        cout << "\t";
+                    }
+                    if (h == 0) {
+                        cout << "\t" << "\"#text\":";
+                    }
+                    // cout << p->children[i]->tagValue.size();
+                    if (p->children[i]->tagValue.size() > 1 && h == 0) {
+                        cout << "[";
+                    }
+
+                    if (p->children[i]->tagValue.size() == 1) {
+                        cout << p->children[i]->tagValue[h] << endl;
+                    }
+                    if (p->children[i]->tagValue.size() > 1 && h == 0) {
+                        cout << p->children[i]->tagValue[h];
+                    }
+                    if (p->children[i]->tagValue.size() > 1 && h != 0) {
+                        cout << "," << p->children[i]->tagValue[h];;
+                    }
+                    if (p->children[i]->tagValue.size() > 1 && h == p->children[i]->tagValue.size() - 1) {
+                        cout << "]" << endl;
+                    }
+                    ///// <summary>
+                    ///// //////////////////
+                    ///// </summary>
+                    ///// <param name="p"></param>
+                    ///// <param name="g"></param>
+
+                    //out << p->children[i]->tagValue[h] << endl;
+                }
+            }
         }
-        cout << "}" << endl;
-           // sss(p->children[i]);
-            
-          //  sss(p->children[i]);
+        else {
+            f++;
+            cout << "\"" << p->children[i]->tagName << "\":{" << endl;
+           
+            for (int h = 0; h < p->children[i]->tagValue.size(); h++)
+            {
+                for (int u = 0; u <= g; u++) {
+                  if(h==0)
+                    cout << "\t";
+                }
+                if (h == 0) {
+                    cout << "\t" << "\"#text\":";
+                }
+                // cout << p->children[i]->tagValue.size();
+                if (p->children[i]->tagValue.size() > 1 && h == 0) {
+                    cout << "[";
+                }
 
+                if (p->children[i]->tagValue.size() == 1) {
+                    cout << p->children[i]->tagValue[h] << endl;
+                }
+                if (p->children[i]->tagValue.size() > 1 && h == 0) {
+                    cout << p->children[i]->tagValue[h];
+                }
+                if (p->children[i]->tagValue.size() > 1 && h != 0) {
+                    cout << "," << p->children[i]->tagValue[h];;
+                }
+                if (p->children[i]->tagValue.size() > 1 && h == p->children[i]->tagValue.size() - 1) {
+                    cout << "]" << endl;
+                }
+              //  cout << p->children[i]->tagValue[h] << endl;
+            }
+
+        }
+        //first = 0;
+        g++;
+        sss(p->children[i], g);
+        g--;
+        int y = tab.top();
+        tab.pop();
+       if (p->children[i]->children.size() != 0) {
+        for (int h = g + 1; h > 0; h--) {
+            cout << "\t";
+
+        }
+      
+           // cout << f;
+          //  cout << p->children[i]->children.size();
+            cout << "}" << endl;
+        }
         //}
+           // sss(p->children[i]);
+
+       //  sss(p->children[i]);
+
+     //}
 
 
     }
     //cout << "}"<<endl << "}";
 }
 int main()
-{ 
-   // cout << "\t" << "dDd";
+{
     fstream readingFile("o.xml", ios::in);
-    fstream createdFile("E.xml", ios::out);
+    fstream createdFile("new.xml", ios::out);
     queue<string> q;
     Reformat(&readingFile, &q);
     //string tp;
@@ -413,11 +561,12 @@ int main()
     //}
 
     Tree tr = Tree(&q);
+    //tr.sortChildren();
     tr.formatingFile(&createdFile);
 
-    sss(tr.root,0);
-   // Minifying(&readingFile, &createdFile);
+    // Minifying(&readingFile, &createdFile);
 
+    sss(tr.root, 0);
     readingFile.close();
     createdFile.close();
 }
