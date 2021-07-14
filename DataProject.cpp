@@ -45,8 +45,11 @@ public:
 
 };
 class Tree
-{public:
+{
+public:
     Node* root;
+    Node* newRoot;
+
     vector<string> preOrder;
     vector<string> postOrder;
     queue<string>* q;
@@ -228,7 +231,7 @@ public:
     }
     void sortChildren()
     {
-        recursiveSort(root);
+        recursiveSort(newRoot);
     }
     void recursiveSort(Node* p)
     {
@@ -239,6 +242,7 @@ public:
             recursiveSort(p->children[i]);
         }
     }
+    
 };
 
 
@@ -401,7 +405,7 @@ void sss(Node* p, int g)
             {
                 //cout << h;
                 if (h == 0) {
-                    cout << "\t"<< "\"#text\":";
+                    cout << "\t" << "\"#text\":";
                 }
                 if (p->tagValue.size() > 1 && h == 0) {
                     cout << "[";
@@ -409,145 +413,110 @@ void sss(Node* p, int g)
                 if (p->tagValue.size() == 1) {
                     cout << p->tagValue[h] << endl;
                 }
-                if (p->tagValue.size() > 1&& h==0) {
-                    cout << p->tagValue[h] ;
+                if (p->tagValue.size() > 1 && h == 0) {
+                    cout << p->tagValue[h];
                 }
-                    if (p->tagValue.size() > 1 && h != 0) {
-                        cout << ","<< p->tagValue[h];;
-                    }
-                    if (p->tagValue.size() > 1 && h == p->tagValue.size() - 1) {
-                        cout << "]"<<endl;
-            }
+                if (p->tagValue.size() > 1 && h != 0) {
+                    cout << "," << p->tagValue[h];;
+                }
+                if (p->tagValue.size() > 1 && h == p->tagValue.size() - 1) {
+                    cout << "]" << endl;
+                }
             }
             pra.push("}");
         }
 
     }
-    int f = 0; 
+    int f = 0;
     //int g = 0;
-    
-     vector<string>v;
-    vector<string>newvalue;
-    vector<string>newname;
+    //vector<string>v;
+    //vector<string>newvalue;
+    //vector<string>newname;
 
-    int flag = 0;
+    //int flag = 0;
+    int repeat = 0;
+    int max = 0;
+    int pf = 0;
+    int printflag = 0;
+    bool redan = false;
+    int redan2 = false;
+    int redan3 = false; 
+    int count = 0;
     for (int i = 0; i < p->children.size(); i++)
     {
-        for (int n = 0; n <= i; n++)
-        { 
-            if (i== 0 ){
-                v.push_back(p->children[i]->tagName);
-             //   cout << v.size();
-            }
-            else {
-                
-                for (int j = 0; j <v.size(); j++)
-                {
-                    if (p->children[i]->tagName != v[j]) {
-                        continue;
-                        v.push_back(p->children[i]->tagName);
-               //         cout << v.size()<<"   ";
-                    }
-                    else {
-                   //     i++;
-                        flag = 1;
-                        //break;
-                    }
 
-                }
-                if (flag == 0)
-                    v.push_back(p->children[i]->tagName);
-                if (flag == 1) flag = 0;
-                //else cout << "ds";
-            
-            }
-
-
-            //cout << v[i] <<"   ";
-        }
-    
-    
-    
-    
-    
-    for (int i = 0; i < p->children.size(); i++)
-    {
-        /*if (p->children[i]->tagName == p->children[i + 1]->tagName)
-        {*/
         tab.push(i + 1);
-       
+        int flag2 = 0;
         for (int u = 0; u <= g; u++) {
             cout << "\t";
         }
         int t = p->children.size();
-       // if (i!=0)
-        int repeat = 0;
+        // if (i!=0)
+
         //cout << p->children[i]->tagName << p->children[i-1]->tagName;
-        if ( !p->children[i]->children.size()   ) {
-          //  cout << p->children[i]->children.size() << i;
-            if (0) {
-                
-        
-            }
-            else {
-
-                cout << "\"" << p->children[i]->tagName << "\":" << endl;
-                for (int h = 0; h < p->children[i]->tagValue.size(); h++)
+        if (!p->children[i]->children.size()) {
+            //  cout << p->children[i]->children.size() << i;
+              ///////////////////////////////
+            if (!redan)
+             cout << "\"" << p->children[i]->tagName << "\"" ;
+           //  && i != 0
+            if (i != p->children.size() - 1 ) {
+                if (p->children[i]->tagName == p->children[i + 1]->tagName)
                 {
-                    for (int u = 0; u <= g; u++) {
-                        cout << "\t";
-                    }
-                    if (h == 0) {
-                        cout << "\t" << "\"#text\":";
-                    }
-                    // cout << p->children[i]->tagValue.size();
-                    if (p->children[i]->tagValue.size() > 1 && h == 0) {
-                        cout << "[";
-                    }
+                    count++; 
+                  //  cout << count;
+                    if (redan3 == false) {
+                        cout << ":["; //cout << "aaaaaaaaaa";
 
-                    if (p->children[i]->tagValue.size() == 1) {
-                        cout << p->children[i]->tagValue[h] << endl;
-                    }
-                    if (p->children[i]->tagValue.size() > 1 && h == 0) {
-                        cout << p->children[i]->tagValue[h];
-                    }
-                    if (p->children[i]->tagValue.size() > 1 && h != 0) {
-                        cout << "," << p->children[i]->tagValue[h];;
-                    }
-                    if (p->children[i]->tagValue.size() > 1 && h == p->children[i]->tagValue.size() - 1) {
-                        cout << "]" << endl;
-                    }
-                    ///// <summary>
-                    ///// //////////////////
-                    ///// </summary>
-                    ///// <param name="p"></param>
-                    ///// <param name="g"></param>
-
-                    //out << p->children[i]->tagValue[h] << endl;
+                        redan3 = true;
+                    }redan = true;
+                    
                 }
+                else {
+                    cout << ":{" << endl;
+                    redan = false;
+
+                }
+               /* 
+                    printflag = 1;
+                    cout << endl << "\"" << p->children[i]->tagName << "\":[";
+                }*/
             }
-        }
-        else {
-            f++;
-            cout << "\"" << p->children[i]->tagName << "\":{" << endl;
-           
+
+
             for (int h = 0; h < p->children[i]->tagValue.size(); h++)
             {
                 for (int u = 0; u <= g; u++) {
-                  if(h==0)
-                    cout << "\t";
+                    if(!redan)
+                cout << "\t";
                 }
-                if (h == 0) {
+                if (!redan) {
+                    // if (printflag == 1)pf = 1;
+                     // cout << printflag;
                     cout << "\t" << "\"#text\":";
                 }
+                else {
+                    if (!redan2) redan2 = true;
+                    else
+                    cout << ",";
+                }
                 // cout << p->children[i]->tagValue.size();
-                if (p->children[i]->tagValue.size() > 1 && h == 0) {
+               /* if (p->children[i]->tagValue.size() > 1 && h == 0) {
                     cout << "[";
+                }*/
+
+                if (p->children[i]->tagValue.size() == 1 ) {
+                    if (printflag != 1)  cout << p->children[i]->tagValue[h] << endl;
+                    if (printflag != 0)  cout << p->children[i]->tagValue[h];
+                }
+                if (p->children[i]->tagValue.size() == 1) {
+
+                    // cout << p->children[i]->tagValue[h] ;
+                 //   cout << p->children[i]->tagValue[h]<<"iji" << ",";
+
                 }
 
-                if (p->children[i]->tagValue.size() == 1) {
-                    cout << p->children[i]->tagValue[h] << endl;
-                }
+
                 if (p->children[i]->tagValue.size() > 1 && h == 0) {
                     cout << p->children[i]->tagValue[h];
                 }
@@ -557,7 +526,48 @@ void sss(Node* p, int g)
                 if (p->children[i]->tagValue.size() > 1 && h == p->children[i]->tagValue.size() - 1) {
                     cout << "]" << endl;
                 }
-              //  cout << p->children[i]->tagValue[h] << endl;
+                //  printflag = 0;
+                  ///// <summary>
+                  ///// //////////////////
+                  ///// </summary>
+                  ///// <param name="p"></param>
+                  ///// <param name="g"></param>
+
+                  //out << p->children[i]->tagValue[h] << endl;
+            }
+            //}
+        }
+        else {
+            f++;
+            cout << "\"" << p->children[i]->tagName << "\":{" << endl;
+
+            for (int h = 0; h < p->children[i]->tagValue.size(); h++)
+            {
+                for (int u = 0; u <= g; u++) {
+                    if (h == 0)
+                        cout << "\t";
+                }
+                if (h == 0) {
+                    cout << "\t" << "\"#text\":";
+                }
+                // cout << p->children[i]->tagValue.size();
+                if (p->children[i]->tagValue.size() > 1 && h == 0) {
+                    cout << "[";
+                }
+
+              /*  if (p->children[i]->tagValue.size() == 1) {
+                    cout << p->children[i]->tagValue[h] << endl;
+                }
+                if (p->children[i]->tagValue.size() > 1 && h == 0) {
+                    cout << p->children[i]->tagValue[h];
+                }
+                if (p->children[i]->tagValue.size() > 1 && h != 0) {
+                    cout << "," << p->children[i]->tagValue[h];
+                }
+                if (p->children[i]->tagValue.size() > 1 && h == p->children[i]->tagValue.size() - 1) {
+                    cout << "]" << endl;
+                }*/
+                //  cout << p->children[i]->tagValue[h] << endl;
             }
 
         }
@@ -567,15 +577,21 @@ void sss(Node* p, int g)
         g--;
         int y = tab.top();
         tab.pop();
-       if (p->children[i]->children.size() != 0) {
-        for (int h = g + 1; h > 0; h--) {
-            cout << "\t";
+        int sq_bra = 0; 
+        if (count != 0)sq_bra == 1;
+        if (p->children[i]->children.size() != -1) {
+            for (int h = g + 1; h > 0; h--) {
+                if (count ==0 )
+                cout << "\t";
 
-        }
-      
-           // cout << f;
-          //  cout << p->children[i]->children.size();
-            cout << "}" << endl;
+            }
+
+            // cout << f;
+           //  cout << p->children[i]->children.size();
+            
+            if (count == 0&&!redan)  cout << "}" << endl;
+            else  if (count == 0 && redan)  cout << "]" << endl;
+            else count--; 
         }
         //}
            // sss(p->children[i]);
@@ -586,11 +602,11 @@ void sss(Node* p, int g)
 
 
     }
-    //cout << "}"<<endl << "}";
+//    cout << "}"<<endl << "}";
 }
 int main()
 {
-    fstream readingFile("o.xml", ios::in);
+    fstream readingFile("data-sample.xml", ios::in);
     fstream createdFile("new.xml", ios::out);
     queue<string> q;
     Reformat(&readingFile, &q);
@@ -606,8 +622,9 @@ int main()
     tr.formatingFile(&createdFile);
 
     // Minifying(&readingFile, &createdFile);
-
-    sss(tr.root, 0);
+    tr.copyTree();
+    tr.sortChildren();
+    sss(tr.newRoot, 0);
     readingFile.close();
     createdFile.close();
 }
