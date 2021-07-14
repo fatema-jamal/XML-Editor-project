@@ -425,6 +425,51 @@ void sss(Node* p, int g)
     }
     int f = 0; 
     //int g = 0;
+    
+     vector<string>v;
+    vector<string>newvalue;
+    vector<string>newname;
+
+    int flag = 0;
+    for (int i = 0; i < p->children.size(); i++)
+    {
+        for (int n = 0; n <= i; n++)
+        { 
+            if (i== 0 ){
+                v.push_back(p->children[i]->tagName);
+             //   cout << v.size();
+            }
+            else {
+                
+                for (int j = 0; j <v.size(); j++)
+                {
+                    if (p->children[i]->tagName != v[j]) {
+                        continue;
+                        v.push_back(p->children[i]->tagName);
+               //         cout << v.size()<<"   ";
+                    }
+                    else {
+                   //     i++;
+                        flag = 1;
+                        //break;
+                    }
+
+                }
+                if (flag == 0)
+                    v.push_back(p->children[i]->tagName);
+                if (flag == 1) flag = 0;
+                //else cout << "ds";
+            
+            }
+
+
+            //cout << v[i] <<"   ";
+        }
+    
+    
+    
+    
+    
     for (int i = 0; i < p->children.size(); i++)
     {
         /*if (p->children[i]->tagName == p->children[i + 1]->tagName)
@@ -440,13 +485,9 @@ void sss(Node* p, int g)
         //cout << p->children[i]->tagName << p->children[i-1]->tagName;
         if ( !p->children[i]->children.size()   ) {
           //  cout << p->children[i]->children.size() << i;
-            if (i != p->children.size()-1 && p->children[i]->tagName == p->children[i + 1]->tagName) {
+            if (0) {
                 
-               // if (p->children[i]->tagName == p->children[i+1]->tagName) {
-                cout << "\"" << p->children[i]->tagName << "\":" << endl;
-                cout <<"["<<
-                //}
-                i++;
+        
             }
             else {
 
