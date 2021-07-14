@@ -242,7 +242,7 @@ public:
             recursiveSort(p->children[i]);
         }
     }
-    
+
 };
 
 
@@ -393,14 +393,17 @@ void sss(Node* p, int g)
     stack <int>tab;
     stack <string>pra;
     stack <int >tab_name;
-    for (int i = 0; i < p->tagValue.size(); i++)
+    for (int i = 0; i <= p->tagValue.size(); i++)
     {
         if (first == 0) {
             first = 1;
             pra.push("}");
             cout << "{" << endl;
             cout << "\"" << p->tagName << "\":{" << endl;
-
+            for (int a = 0; a < p->attribute.size(); a++)
+            {
+                cout << "\t" << "\"-" << p->attribute[a].first << "\"" << ":" << p->attribute[a].second<<endl;
+            }
             for (int h = 0; h < p->tagValue.size(); h++)
             {
                 //cout << h;
@@ -423,6 +426,10 @@ void sss(Node* p, int g)
                     cout << "]" << endl;
                 }
             }
+           
+
+
+
             pra.push("}");
         }
 
@@ -458,7 +465,7 @@ void sss(Node* p, int g)
             //  cout << p->children[i]->children.size() << i;
               ///////////////////////////////
             if (!redan)
-             cout << "\"" << p->children[i]->tagName << "\"" ;
+             cout << "\"" << p->children[i]->tagName << "\":" ;
            //  && i != 0
             if (i != p->children.size() - 1 ) {
                 if (p->children[i]->tagName == p->children[i + 1]->tagName)
@@ -466,24 +473,40 @@ void sss(Node* p, int g)
                     count++; 
                   //  cout << count;
                     if (redan3 == false) {
-                        cout << ":["; //cout << "aaaaaaaaaa";
+                        cout << "["; //cout << "aaaaaaaaaa";
 
                         redan3 = true;
                     }redan = true;
                     
                 }
                 else {
-                    cout << ":{" << endl;
+                    cout << "{" << endl;
                     redan = false;
 
                 }
+            }
+            else {
+                cout << "{" << endl;
+                redan = false;
+
+            
                /* 
                     printflag = 1;
                     cout << endl << "\"" << p->children[i]->tagName << "\":[";
                 }*/
             }
-
-
+          //  cout << p->attribute.size();
+            for (int a = 0; a < p->children[i]->attribute.size(); a++)
+            {
+                cout << endl;
+                for (int u = 0; u <= g; u++) {
+                    if (!redan)
+                        cout << "\t";
+                }
+               // cout << "xf;";
+                cout<<"\t" << "\"-" << p->children[i]->attribute[a].first << "\"" << ":" << p->children[i]->attribute[a].second;
+                if (a == p->children[i]->attribute.size() - 1)cout << endl;
+            }
             for (int h = 0; h < p->children[i]->tagValue.size(); h++)
             {
                 for (int u = 0; u <= g; u++) {
@@ -602,6 +625,7 @@ void sss(Node* p, int g)
 
 
     }
+    if (g == 0)cout << "}" << endl <<"}";
 //    cout << "}"<<endl << "}";
 }
 int main()
