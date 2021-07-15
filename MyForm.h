@@ -223,7 +223,7 @@ namespace Project1 {
             auto file = openFileDialog1->FileName;
             MarshalString(file, name);
              auto tr = Tree(name);
-         
+             lBInput->HorizontalScrollbar = true;
             lBInput->Items->Clear();
             fstream inFile(name, ios::in);
             if (inFile.good())
@@ -237,6 +237,7 @@ namespace Project1 {
                     }
                 }
                 sr->Close();
+                lBOutput->HorizontalScrollbar = true;
             }
             else { line = "Data can't be previwed";
                    lBInput->Items->Add(line);
@@ -267,7 +268,7 @@ namespace Project1 {
         }
         if (i == 1)
         {
-            StreamReader^ sr = gcnew StreamReader(file);
+          StreamReader^ sr = gcnew StreamReader(file);
             lBOutput->Items->Clear();
             while (line != nullptr)
             {
@@ -292,6 +293,46 @@ namespace Project1 {
 
 
     private: System::Void btnToJson_Click(System::Object^ sender, System::EventArgs^ e) {
+        auto tr = Tree(name);
+        string frmt;
+        String^ file;
+        int i = 0;
+
+        /* string formated = name;
+         formated.append("//formated.xml");*/
+         //tr.formatingFile(formated);
+        String^ line = "";
+        OpenFileDialog^ openFileDialog1 = gcnew OpenFileDialog;
+        if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+        {
+
+
+            file = openFileDialog1->FileName;
+            MarshalString(file, frmt);
+            fstream createdFile(frmt, ios::out);
+            tr.convertToJson(frmt);
+            i++;
+
+        }
+        if (i == 1)
+        {
+            StreamReader^ sr = gcnew StreamReader(file);
+            lBOutput->Items->Clear();
+            while (line != nullptr)
+            {
+                line = sr->ReadLine();
+                if (line != nullptr)
+                {
+                    lBOutput->Items->Add(line);
+                }
+            }
+            sr->Close();
+        }
+
+        lBOutput->HorizontalScrollbar = true;
+
+
+
     }
 private: System::Void btnCheck_Click(System::Object^ sender, System::EventArgs^ e) {
 }
